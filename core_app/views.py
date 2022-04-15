@@ -25,11 +25,11 @@ class AddUser(APIView):
     def createNewUser(self, username, password, user_type, name=None, state=None, income_from_salary=None, income_from_shares=None, tax_status=None):
         try:                                                                                # Check if user already exists
             User.objects.get(username=username)
-            return 'User Exists'
+            return 'User Exists', 500
         except:                                                                             # Create a new user if doesnt exist
             new_user = User.objects.create_user(username=username, password=make_password(password), user_type=user_type, name=name, state=state, income_from_salary=income_from_salary, income_from_shares=income_from_shares, tax_status=tax_status)
             CustomGroups.addUserToGroup(self, new_user, user_type)
-            return 'User Added'
+            return 'User Added', 200
 
 
     def post(self, request):
@@ -49,18 +49,20 @@ class AddUser(APIView):
                     income_from_salary = addUserSerializer.data['income_from_salary']
                     income_from_shares = addUserSerializer.data['income_from_shares']
                     tax_status = addUserSerializer.data['tax_status']
-                    status = self.createNewUser(username, password, user_type, name, state, income_from_salary, income_from_shares, tax_status)
+                    status, status_code = self.createNewUser(username, password, user_type, name, state, income_from_salary, income_from_shares, tax_status)
                     return Response(
                         {
                             'status': status,
-                        }
+                        },
+                        status = status_code
                     )
                 else:
                     return Response(                                                    # Error if user data is invalid
                         {
                             'status': 'Error',
                             'message': addUserSerializer.errors
-                        }
+                        },
+                        status = 500
                     )
             else:
                 addUserSerializer = SignUpSerializer(data=data)                                 # Data Validation using Serializer
@@ -68,11 +70,12 @@ class AddUser(APIView):
                     username = addUserSerializer.data['username']
                     password = addUserSerializer.data['password']
                     user_type = addUserSerializer.data['user_type']
-                    status = self.createNewUser(username, password, user_type)                  # Call createNewUser for new user check
+                    status, status_code = self.createNewUser(username, password, user_type)                  # Call createNewUser for new user check
                     return Response(
                         {
                             'status': status,
-                        }
+                        },
+                        status = status_code
                     )
 
         elif user.groups.filter(name='TaxAccountant'):                                      # Check if user is a Teacher
@@ -88,33 +91,37 @@ class AddUser(APIView):
                     income_from_salary = addUserSerializer.data['income_from_salary']
                     income_from_shares = addUserSerializer.data['income_from_shares']
                     tax_status = addUserSerializer.data['tax_status']
-                    status = self.createNewUser(username, password, user_type, name, state, income_from_salary, income_from_shares, tax_status)
+                    status, status_code = self.createNewUser(username, password, user_type, name, state, income_from_salary, income_from_shares, tax_status)
                     return Response(
                         {
                             'status': status,
-                        }
+                        },
+                        status = status_code
                     )
                 else:
                     return Response(                                                    # Error if user data is invalid
                         {
                             'status': 'Error',
                             'message': addUserSerializer.errors
-                        }
+                        },
+                        status = 500
                     )
             else:
                 return Response(                                                        # Error if new user is SuperUser or TaxAccountant
                     {
                         'status': 'Error',
                         'message': 'Insufficient Permissions to perform the request'
-                    }
+                    },
+                    status = 500
                 )
 
-        elif user.groups.filter(name='Tax Payer'):                                          # Check if user is a TaxPayer
+        elif user.groups.filter(name='TaxPayer'):                                          # Check if user is a TaxPayer
             return Response(
                 {                                                                           # Error because TaxPayer cannot add Users
                     'status': 'Error',
                     'message': 'Insufficient Permissions to perform the request'
-                }
+                },
+                status = 500
             )
 
 
@@ -195,9 +202,9 @@ class EditUser(APIView):
             user.tax_status = tax_status
             user.save(update_fields=['password', 'user_type', 'name', 'state', 'income_from_salary', 'income_from_shares', 'tax_status'])
             CustomGroups.addUserToGroup(self, user, user_type)                              # Update User's Group
-            return 'User Updated'
+            return 'User Updated', 200
         except:                                                                             # Error if user doesnt exist
-            return 'User Does Not Exists'
+            return 'User Does Not Exists', 500
 
     def post(self, request):
         username = request.user
@@ -216,18 +223,20 @@ class EditUser(APIView):
                     income_from_salary = editUserSerializer.data['income_from_salary']
                     income_from_shares = editUserSerializer.data['income_from_shares']
                     tax_status = editUserSerializer.data['tax_status']
-                    status = self.updateUser(username, password, user_type, name, state, income_from_salary, income_from_shares, tax_status)
+                    status, status_code = self.updateUser(username, password, user_type, name, state, income_from_salary, income_from_shares, tax_status)
                     return Response(
                         {
                             'status': status,
-                        }
+                        },
+                        status = status_code
                     )
                 else:
                     return Response(                                                    # Error if user data is invalid
                         {
                             'status': 'Error',
                             'message': editUserSerializer.errors
-                        }
+                        },
+                        status = 500
                     )
             else:
                 editUserSerializer = SignUpSerializer(data=data)                                 # Data Validation using Serializer
@@ -235,11 +244,12 @@ class EditUser(APIView):
                     username = editUserSerializer.data['username']
                     password = editUserSerializer.data['password']
                     user_type = editUserSerializer.data['user_type']
-                    status = self.updateUser(username, password, user_type)                  # Call createNewUser for new user check
+                    status, status_code = self.updateUser(username, password, user_type)                  # Call createNewUser for new user check
                     return Response(
                         {
                             'status': status,
-                        }
+                        },
+                        status = status_code
                     )
 
         elif user.groups.filter(name='TaxAccountant'):                                      # Check if user is a Teacher
@@ -255,31 +265,35 @@ class EditUser(APIView):
                     income_from_salary = editUserSerializer.data['income_from_salary']
                     income_from_shares = editUserSerializer.data['income_from_shares']
                     tax_status = editUserSerializer.data['tax_status']
-                    status = self.createNewUser(username, password, user_type, name, state, income_from_salary, income_from_shares, tax_status)
+                    status, status_code = self.updateUser(username, password, user_type, name, state, income_from_salary, income_from_shares, tax_status)
                     return Response(
                         {
                             'status': status,
-                        }
+                        },
+                        status = status_code
                     )
                 else:
                     return Response(                                                    # Error if user data is invalid
                         {
                             'status': 'Error',
                             'message': editUserSerializer.errors
-                        }
+                        },
+                        status = 500
                     )
             else:
                 return Response(                                                        # Error if new user is SuperUser or TaxAccountant
                     {
                         'status': 'Error',
                         'message': 'Insufficient Permissions to perform the request'
-                    }
+                    },
+                    status = 500
                 )
 
-        elif user.groups.filter(name='Tax Payer'):                                          # Check if user is a TaxPayer
+        elif user.groups.filter(name='TaxPayer'):                                          # Check if user is a TaxPayer
             return Response(
                 {                                                                           # Error because TaxPayer cannot add Users
                     'status': 'Error',
                     'message': 'Insufficient Permissions to perform the request'
-                }
+                },
+                status = 500
             )

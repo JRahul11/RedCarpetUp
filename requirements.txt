@@ -6,5 +6,3 @@ djangorestframework-jwt
 pillow
 gunicorn
 whitenoise
-requests
-xlrd

@@ -25,7 +25,8 @@ class LoginView(APIView):
                 return Response(
                     {
                         'status': 'Check Credentials'
-                    }
+                    },
+                    status=500
                 )
             else:
                 login(request, user)                                            # Record found, hence login the user
@@ -42,7 +43,8 @@ class LoginView(APIView):
                 {
                     'status': 'Error',
                     'message': loginSerializer.errors
-                }
+                },
+                status=500
             )
 
 
@@ -79,7 +81,8 @@ class SignUpView(APIView):
                 return Response(
                     {
                         'status': 'Username Exists'
-                    }
+                    },
+                    status=500
                 )
 
         else:
@@ -87,5 +90,6 @@ class SignUpView(APIView):
                 {
                     'status': 'Error',
                     'message': signupSerializer.errors
-                }
+                },
+                status=500
             )
