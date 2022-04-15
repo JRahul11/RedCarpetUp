@@ -1,14 +1,14 @@
-from django.contrib import admin
 from django.urls import path
-from django.urls.conf import include
+from .views import *
 
 urlpatterns = [
-#     # Admin URL
-#     path('admin/', admin.site.urls),
+    # Add User
+    path('addUser/', AddUser.as_view()),
     
-#     # Auth URLs
-#     path('auth/', include('auth_app.urls')),
+    # View User
+    path('viewUser/', ViewUser.as_view()),
     
-#     # Core URLs
-#     path('api/', include('core_app.urls')),
+    # Edit User
+    path('editUser/', EditUser.as_view()),
+
 ]

@@ -1,0 +1,10 @@
+Django
+djangorestframework
+django-cors-headers
+djangorestframework-simplejwt
+djangorestframework-jwt
+pillow
+gunicorn
+whitenoise
+requests
+xlrd
